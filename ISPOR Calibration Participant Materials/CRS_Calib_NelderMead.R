@@ -25,7 +25,7 @@
 # Goodness-of-fit measure: Sum of Log-Likelihood
 
 ####################################################################
-rm(list=ls())
+rm(list = ls())
 
 ####################################################################
 ######  Load packages and function files  ####
@@ -67,7 +67,7 @@ plotrix::plotCI(x = lst_targets$Surv$time, y = lst_targets$Surv$value,
 # - inputs are parameters to be estimated through calibration
 # - outputs correspond to the target data
 
-source("CRS_MarkovModel_Function.R") # creates the function run_crs_markov()
+source("CRS_MarkovModel_Function.R") # loads the function run_crs_markov()
 
 # Check that it works
 v_params_test <- c(p_Mets = 0.10, p_DieMets = 0.05)
@@ -138,16 +138,16 @@ f_gof <- function(v_params){
 t_init <- Sys.time()
 
 ###  Sample multiple random starting values for Nelder-Mead  ###
-v_params_init <- matrix(nrow=n_init,ncol=n_param)
-for (i in 1:n_param){
-  v_params_init[,i] <- runif(n_init,min=lb[i],max=ub[i])
+v_params_init <- matrix(nrow = n_init, ncol = n_param)
+for (i in 1:n_param) {
+  v_params_init[,i] <- runif(n_init, min = lb[i],max = ub[i])
 }
 colnames(v_params_init) <- v_param_names
 
 ###  Run Nelder-Mead for each starting point  ###
-m_calib_res <- matrix(nrow = n_init, ncol = n_param+1)
+m_calib_res <- matrix(nrow = n_init, ncol = n_param + 1)
 colnames(m_calib_res) <- c(v_param_names, "Overall_fit")
-for (j in 1:n_init){ # j <- 1
+for (j in 1:n_init) { # j <- 1
   
   ### use optim() as Nelder-Mead ###
   fit_nm <- optim(v_params_init[j,], f_gof,
@@ -184,19 +184,19 @@ comp_time <- Sys.time() - t_init
 m_calib_res <- m_calib_res[order(-m_calib_res[,"Overall_fit"]),]
 
 # Examine the top 10 best-fitting sets
-m_calib_res[1:10,]
+m_calib_res[1:10, ]
 
 # Plot the top 10 (top 10%)
-plot(m_calib_res[1:10,1],m_calib_res[1:10,2],
-     xlim=c(lb[1],ub[1]),ylim=c(lb[2],ub[2]),
-     xlab = colnames(m_calib_res)[1],ylab = colnames(m_calib_res)[2])
+plot(m_calib_res[1:10, 1], m_calib_res[1:10, 2],
+     xlim = c(lb[1], ub[1]), ylim = c(lb[2], ub[2]),
+     xlab = colnames(m_calib_res)[1], ylab = colnames(m_calib_res)[2])
 
 # Pairwise comparison of top 10 sets
 pairs.panels(m_calib_res[1:10,v_param_names])
 
 
 ### Plot model-predicted output at mean vs targets ###
-v_out_best <- run_crs_markov(m_calib_res[1,])
+v_out_best <- run_crs_markov(m_calib_res[1, ])
 
 # TARGET 1: Survival ("Surv")
 plotrix::plotCI(x = lst_targets$Surv$time, y = lst_targets$Surv$value, 
