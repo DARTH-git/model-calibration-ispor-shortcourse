@@ -6,9 +6,10 @@
 if (!require('pacman')) install.packages('pacman'); library(pacman) 
 
 # load (install if required) packages from CRAN
-p_load("devtools", "lhs", "plotrix", "psych", "DEoptim", "IMIS", "matrixStats", "scatterplot3d")
+p_load("devtools", "lhs", "plotrix", "psych", "DEoptim", "matrixStats", "scatterplot3d")
 
-
+# Install IMIS
+devtools::install_version("IMIS", version = "0.1", repos = "http://cran.us.r-project.org")
 
 
 
