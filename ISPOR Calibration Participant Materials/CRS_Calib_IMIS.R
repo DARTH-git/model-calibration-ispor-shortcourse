@@ -105,7 +105,7 @@ sample_prior <- function(n_samp){ # n_samp <- 5
   m_lhs_unit   <- randomLHS(n = n_samp, k = n_param)
   m_param_samp <- matrix(nrow = n_samp, ncol = n_param)
   colnames(m_param_samp) <- v_param_names
-  for (i in 1:n_param){
+  for (i in 1:n_param) {
     m_param_samp[, i] <- qunif(m_lhs_unit[,i],
                                min = lb[i],
                                max = ub[i])
@@ -126,13 +126,13 @@ pairs.panels(sample_prior(1000))
 
 # function that calculates the log-prior
 calc_log_prior <- function(v_params){
-  if(is.null(dim(v_params))) { # If vector, change to matrix
+  if (is.null(dim(v_params))) { # If vector, change to matrix
     v_params <- t(v_params) 
   }
   n_samp <- nrow(v_params)
   colnames(v_params) <- v_param_names
   lprior <- rep(0, n_samp)
-  for (i in 1:n_param){
+  for (i in 1:n_param) {
     lprior <- lprior + dunif(v_params[, i],
                              min = lb[i],
                              max = ub[i], 
@@ -162,13 +162,13 @@ calc_prior(v_params = sample_prior(10))
 # function to calculate the log-likelihood
 calc_log_lik <- function(v_params){
   # par_vector: a vector (or matrix) of model parameters 
-  if(is.null(dim(v_params))) { # If vector, change to matrix
+  if (is.null(dim(v_params))) { # If vector, change to matrix
     v_params <- t(v_params) 
   }
   n_samp <- nrow(v_params)
   v_llik <- matrix(0, nrow = n_samp, ncol = n_target) 
   llik_overall <- numeric(n_samp)
-  for(j in 1:n_samp) { # j=1
+  for (j in 1:n_samp) { # j=1
     jj <- tryCatch( { 
       ###   Run model for parametr set "v_params" ###
       model_res <- run_crs_markov(v_params[j, ])
@@ -191,7 +191,7 @@ calc_log_lik <- function(v_params){
       # OVERALL 
       llik_overall[j] <- sum(v_llik[j, ])
     }, error = function(e) NA) 
-    if(is.na(jj)) { llik_overall <- -Inf }
+    if (is.na(jj)) { llik_overall <- -Inf }
   } # End loop over sampled parameter sets
   # return LLIK
   return(llik_overall)
@@ -296,7 +296,7 @@ v_out_best <- run_crs_markov(v_calib_map[v_param_names])
 v_out_post_mean <- run_crs_markov(v_calib_post_mean)
 
 # set plot margins (helps plotting)
-par(mar=c(5,4,4,4)) 
+par(mar = c(5, 4, 4, 4)) 
 # TARGET 1: Survival ("Surv")
 plotrix::plotCI(x = lst_targets$Surv$time, y = lst_targets$Surv$value, 
                 ui = lst_targets$Surv$ub,
