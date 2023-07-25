@@ -12,7 +12,7 @@
 #   Hunink MG. An Overview of R in Health Decision Sciences. 
 #   Med Decis Making. 2017; 37(3): 735-746. 
 
-# A walkthrough of the code could be found in the follwing link:
+# A walkthrough of the code could be found in the following link:
 # - https://darth-git.github.io/calibSMDM2018-materials/
 ###########################################################################
 
