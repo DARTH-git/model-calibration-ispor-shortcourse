@@ -45,7 +45,7 @@ library(psych)
 ####################################################################
 ######  Load target data  ######
 ####################################################################
-load("CRS_CalibTargets.RData")
+load("ISPOR Calibration Participant Materials/CRS_CalibTargets.RData")
 lst_targets <- CRS_targets
 
 # Plot the targets
@@ -71,7 +71,7 @@ plotrix::plotCI(x = lst_targets$Surv$time, y = lst_targets$Surv$value,
 # - inputs are parameters to be estimated through calibration
 # - outputs correspond to the target data
 
-source("CRS_MarkovModel_Function.R") # creates the function run_crs_markov()
+source("ISPOR Calibration Participant Materials/CRS_MarkovModel_Function.R") # creates the function run_crs_markov()
 
 # Check that it works
 v_params_test <- c(p_Mets = 0.10, p_DieMets = 0.05)
@@ -88,7 +88,7 @@ set.seed(072218)
 n_resamp <- 1000
 
 # names and number of input parameters to be calibrated
-v_param_names <- c("p_Mets","p_DieMets")
+v_param_names <- c("p_Mets", "p_DieMets")
 n_param <- length(v_param_names)
 
 # range on input search space
@@ -149,7 +149,7 @@ calc_log_prior <- function(v_params){
 }
 calc_log_prior(v_params = v_params_test)
 calc_log_prior(v_params = sample_prior(10))
-
+calc_log_prior(v_params = c(0.01, 0.17))
 
 # function that calculates the (non-log) prior
 calc_prior <- function(v_params) { 
@@ -157,6 +157,7 @@ calc_prior <- function(v_params) {
 }
 calc_prior(v_params = v_params_test)
 calc_prior(v_params = sample_prior(10))
+calc_prior(v_params = c(0.01, 0.17))
 
 ###  LIKELIHOOD  ###
 # Write functions to evaluate log-likelihood and likelihood
