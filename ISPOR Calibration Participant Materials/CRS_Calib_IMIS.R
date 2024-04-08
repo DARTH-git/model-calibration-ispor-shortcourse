@@ -40,7 +40,10 @@ library(matrixStats) # package used for summary statistics
 # visualization
 library(plotrix)
 library(psych)
+library(GGally)
 
+# data wrangling
+library(dplyr)
 
 ####################################################################
 ######  Load target data  ######
@@ -329,3 +332,101 @@ points(x = lst_targets$Surv$time,
 # legend("topright", 
 #        legend = c("Target", "Model-predicted output"),
 #        col = c("black", "red"), pch = c(1, 8))
+
+## Fancier pairwise plot ----
+gg_post_pairs_corr <- GGally::ggpairs(data.frame(m_calib_res[, v_param_names]),
+                                      upper = list(continuous = wrap("cor",
+                                                                     color = "black",
+                                                                     size = 5)),
+                                      diag = list(continuous = wrap("barDiag",
+                                                                    alpha = 0.8)),
+                                      lower = list(continuous = wrap("points", 
+                                                                     alpha = 0.3,
+                                                                     size = 0.7)),
+                                      columnLabels = v_param_names
+) +
+  theme_bw(base_size = 18) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x  = element_text(size = 14),
+        axis.title.y = element_blank(),
+        axis.text.y  = element_blank(),
+        axis.ticks.y = element_blank(),
+        strip.background = element_rect(fill = "white",
+                                        color = "white"),
+        strip.text = element_text(hjust = 0))
+gg_post_pairs_corr
+
+## Prior vs. posterior ----
+m_samp_prior <- sample.prior(n_resamp)
+df_samp_prior <- reshape2::melt(cbind(PDF = "Prior", 
+                                      as.data.frame(m_samp_prior)), 
+                                variable.name = "Parameter")
+df_samp_post_imis <- reshape2::melt(cbind(PDF = "Posterior IMIS",
+                                          as.data.frame(m_calib_res[, v_param_names])),
+                                    variable.name = "Parameter")
+df_samp_prior_post <- dplyr::bind_rows(df_samp_prior, 
+                                       df_samp_post_imis)
+
+gg_prior_post_imis <- ggplot(df_samp_prior_post, 
+                             aes(x = value, y = ..density.., fill = PDF)) +
+  facet_wrap(~Parameter, scales = "free", 
+             ncol = 4,
+             labeller = label_parsed) +
+  scale_x_continuous(n.breaks = 6) +
+  geom_density(alpha = 0.5) +
+  theme_bw(base_size = 16) +
+  theme(legend.position = "bottom",
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+gg_prior_post_imis
+
+#  Propagate calibrated parameter uncertainty  ----
+## Compute IMIS posterior predicted outputs ----
+m_out_surv     <- matrix(NA, 
+                         nrow = n_resamp, 
+                         ncol = length(lst_targets$Surv$value))  
+
+### Run model for each posterior parameter set ----
+for (i in 1:n_resamp) { # i = 1
+  model_res_temp <- run_crs_markov(m_calib_res[i, ])
+  m_out_surv[i, ] <- model_res_temp$Surv
+  if (i/100 == round(i/100,0)) { 
+    cat('\r', paste(i/n_resamp*100, "% done", sep = ""))
+  }
+}
+
+## Posterior-predicted mean ----
+v_out_surv_post_mean <- colMeans(m_out_surv)
+
+## Posterior-predicted 95% credible interval ----
+m_out_surv_95cri <- colQuantiles(m_out_surv, probs = c(0.025, 0.975))
+
+df_out_post <- data.frame(Type = "Model output",
+                          dplyr::bind_cols(Outcome = "Survival", 
+                                           time = lst_targets[[1]]$time,
+                                           value = v_out_surv_post_mean,
+                                           lb = m_out_surv_95cri[, 1],
+                                           ub = m_out_surv_95cri[, 2]))
+df_out_post$Outcome <- ordered(df_out_post$Outcome, 
+                               levels = c("Survival"))
+
+## Plot targets vs. model-predicted output ----
+df_targets <- data.frame(cbind(Type = "Target", 
+                               Outcome = "Survival", 
+                               lst_targets[[1]]))
+df_targets$Outcome <- ordered(df_targets$Outcome, 
+                              levels = c("Survival"))
+ggplot(df_targets, aes(x = time, y = value, 
+                       ymin = lb, ymax = ub)) +
+  # geom_point(shape = 1, size = 2) +
+  geom_errorbar() +
+  geom_line(data = df_out_post, 
+            aes(x = time, y = value), col = "blue") +
+  geom_ribbon(data = df_out_post,
+              aes(ymin = lb, ymax = ub), alpha = 0.4, fill = "blue") +
+  facet_wrap(~ Outcome, scales = "free_x") +
+  scale_x_continuous("Time", n.breaks = 8) +
+  scale_y_continuous("Proportion", n.breaks = 8) +
+  theme_bw(base_size = 16)
