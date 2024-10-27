@@ -192,14 +192,14 @@ calc_log_lik <- function(v_params){
                                 sd = lst_targets$Surv$se,
                                 log = T))
       
-      # TARGET 2: "Prev"
+      # TARGET 2: Prevalence ("Prev")
       # log likelihood
       v_llik[j,2] <- sum(dnorm(x = lst_targets$Prev$value,
                                mean = model_res$Prev,
                                sd = lst_targets$Prev$se,
                                log = T))
       
-      # TARGET 3: "PropSick"
+      # TARGET 3: Proportion of sick in Sick state ("PropSick")
       # log likelihood
       v_llik[j,3] <- sum(dnorm(x = lst_targets$PropSick$value,
                                mean = model_res$PropSick,
