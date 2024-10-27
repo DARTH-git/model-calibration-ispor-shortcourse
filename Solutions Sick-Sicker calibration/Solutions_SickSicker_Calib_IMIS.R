@@ -46,7 +46,7 @@ library(scatterplot3d) # now that we have three inputs to estimate, we'll need h
 ####################################################################
 ######  Load target data  ######
 ####################################################################
-load("SickSicker_CalibTargets.RData")
+load("ISPOR Calibration Participant Materials/SickSicker_CalibTargets.RData")
 lst_targets <- SickSicker_targets
 
 # Plot the targets
@@ -79,7 +79,7 @@ plotrix::plotCI(x = lst_targets$PropSick$time, y = lst_targets$PropSick$value,
 # - inputs are parameters to be estimated through calibration
 # - outputs correspond to the target data
 
-source("SickSicker_MarkovModel_Function.R") # creates the function run_sick_sicker_markov()
+source("ISPOR Calibration Participant Materials/SickSicker_MarkovModel_Function.R") # creates the function run_sick_sicker_markov()
 
 # Check that it works
 v_params_test <- c(p_S1S2 = 0.105, hr_S1 = 3, hr_S2 = 10)
